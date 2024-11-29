@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Assistant', sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    direction: rtl;
+  }
+
+  body {
+    @apply font-assistant text-body bg-nature-cream;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  h1 {
+    @apply text-h1 mb-6 text-nature-charcoal;
+  }
+
+  h2 {
+    @apply text-h2 mb-5 text-nature-charcoal;
+  }
+
+  h3 {
+    @apply text-h3 mb-4 text-nature-charcoal;
+  }
+
+  h4 {
+    @apply text-h4 mb-3 text-nature-charcoal;
+  }
+
+  p {
+    @apply text-body mb-4 text-nature-charcoal/90;
+  }
+}
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Interactive hover effects */
+.hover-lift {
+  @apply transition-all duration-300 ease-out;
+}
+
+.hover-lift:hover {
+  @apply -translate-y-1 shadow-lg;
+}
+
+.hover-scale {
+  @apply transition-all duration-300 ease-out;
+}
+
+.hover-scale:hover {
+  @apply scale-[1.02] shadow-lg;
+}
+
+/* Custom gradient backgrounds */
+.bg-nature-gradient {
+  background: linear-gradient(135deg, #80b066 0%, #8B6548 50%, #3E6538 100%);
+}
+
+.bg-warm-gradient {
+  background: linear-gradient(135deg, #c4a484 0%, #b08968 100%);
+}
+
+.bg-nature-gradient-soft {
+  background: linear-gradient(135deg, #FAF9F6 0%, #EDE6DB 100%);
+}
+
+.bg-nature-gradient-warm {
+  background: linear-gradient(135deg, #8B6548 0%, #724c2c 100%);
+}
+
+/* Button hover effects */
+.hover-nature-gradient:hover {
+  background: linear-gradient(135deg, #99c485 0%, #a47e64 50%, #679c47 100%);
+}
+
+/* Text gradient effect */
+.text-nature-gradient {
+  background: linear-gradient(135deg, #80b066 0%, #8B6548 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover effects */
+.card-hover-effect {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover-effect:hover {
+  @apply -translate-y-1 shadow-lg;
+}
+
+/* Hebrew text optimizations */
+.hebrew-text {
+  font-feature-settings: "kern", "liga", "clig", "calt", "hebr";
+  font-family: 'Assistant', sans-serif;
+}
+
+/* Call to action text emphasis */
+.cta-text {
+  @apply text-shadow-md font-bold tracking-wide;
+}
+
+/* Heading emphasis */
+.heading-emphasis {
+  @apply text-shadow-lg font-bold;
+}
+
+/* Interactive section highlight */
+.section-highlight {
+  @apply transition-all duration-300 ease-out;
+}
+
+.section-highlight:hover {
+  @apply bg-opacity-90 shadow-xl scale-[1.01];
+}

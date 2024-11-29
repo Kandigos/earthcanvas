@@ -1,0 +1,53 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background grid -->
+  <defs>
+    <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#80b066" stroke-width="0.5" stroke-opacity="0.05"/>
+    </pattern>
+    <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#smallGrid)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#80b066" stroke-width="1" stroke-opacity="0.08"/>
+    </pattern>
+    
+    <!-- Organic shapes -->
+    <g id="leaf">
+      <path d="M0,0 Q5,-5 10,0 T20,0" fill="none" stroke="#6A994E" stroke-width="1"/>
+    </g>
+    
+    <!-- Branch pattern -->
+    <pattern id="branches" width="200" height="200" patternUnits="userSpaceOnUse">
+      <path d="M20,150 Q90,120 160,150 T300,150" fill="none" stroke="#8B6548" stroke-width="1" stroke-opacity="0.1"/>
+      <path d="M40,100 Q110,70 180,100 T320,100" fill="none" stroke="#6A994E" stroke-width="1" stroke-opacity="0.1"/>
+      <path d="M0,50 Q70,20 140,50 T280,50" fill="none" stroke="#80b066" stroke-width="1" stroke-opacity="0.1"/>
+    </pattern>
+    
+    <!-- Dots pattern -->
+    <pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="1" fill="#6A994E" fill-opacity="0.1"/>
+      <circle cx="0" cy="0" r="1" fill="#8B6548" fill-opacity="0.1"/>
+      <circle cx="40" cy="40" r="1" fill="#80b066" fill-opacity="0.1"/>
+    </pattern>
+  </defs>
+  
+  <!-- Main pattern layers -->
+  <rect width="400" height="400" fill="url(#grid)"/>
+  <rect width="400" height="400" fill="url(#branches)"/>
+  <rect width="400" height="400" fill="url(#dots)"/>
+  
+  <!-- Organic decorative elements -->
+  <g opacity="0.07">
+    <!-- Scattered leaves -->
+    <use href="#leaf" transform="translate(50,50) rotate(45)"/>
+    <use href="#leaf" transform="translate(150,150) rotate(90)"/>
+    <use href="#leaf" transform="translate(250,250) rotate(135)"/>
+    <use href="#leaf" transform="translate(350,350) rotate(180)"/>
+    
+    <!-- Curved lines -->
+    <path d="M0,200 Q200,150 400,200" stroke="#6A994E" fill="none" stroke-width="1"/>
+    <path d="M0,300 Q200,250 400,300" stroke="#80b066" fill="none" stroke-width="1"/>
+    
+    <!-- Additional organic shapes -->
+    <circle cx="100" cy="100" r="50" fill="none" stroke="#8B6548" stroke-width="1"/>
+    <circle cx="300" cy="300" r="30" fill="none" stroke="#6A994E" stroke-width="1"/>
+  </g>
+</svg>
