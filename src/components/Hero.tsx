@@ -1,10 +1,10 @@
-import React from 'react';
+import { type FC } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BackgroundCanvas } from './FallingLeaves';
 
-export function Hero() {
+export const Hero: FC = () => {
   const scrollToFeatures = () => {
     const featuresSection = document.getElementById('features');
     featuresSection?.scrollIntoView({ behavior: 'smooth' });
