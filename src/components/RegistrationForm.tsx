@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { sendRegistrationToWebhook, RegistrationData } from '../lib/webhook';
+import { sendRegistrationToWebhook } from '../lib/webhook';
 import { Event } from '../types';
-import { AlertCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './Button';
 
@@ -20,15 +20,13 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError('');
 
     try {
-      const registrationData: RegistrationData = {
+      const registrationData = {
         eventId: event.id,
         eventTitle: event.title,
         name: formData.name.trim(),
@@ -47,32 +45,22 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
         toast.success('ההרשמה בוצעה בהצלחה!');
         setIsSubmitted(true);
       } else {
-        setError('אירעה שגיאה בהרשמה. אנא נסו שנית.');
-        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
+        toast.error(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'אירעה שגיאה בהרשמה. אנא נסו שנית.';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handlePayment = () => {
-    if (event.paymentLink) {
-      window.open(event.paymentLink, '_blank');
-    } else {
-      toast.error('קישור לתשלום אינו זמין כרגע');
-    }
-  };
-
+  // Show success message and payment button after submission
   if (isSubmitted) {
     return (
       <div className="text-center space-y-6">
-        <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
-          <div className="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -81,13 +69,13 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           
           {event.paymentLink && (
             <div className="space-y-4">
-              <p className="text-earth-700 font-medium">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע.</p>
+              <p className="text-earth-700 font-medium">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע</p>
               <Button
                 variant="primary"
                 fullWidth
                 size="lg"
                 icon={<ExternalLink className="w-5 h-5" />}
-                onClick={handlePayment}
+                onClick={() => window.open(event.paymentLink, '_blank')}
               >
                 מעבר לתשלום
               </Button>
@@ -100,13 +88,6 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
-
       <div>
         <label className="block text-sm font-medium text-earth-800 mb-2">שם מלא</label>
         <input
