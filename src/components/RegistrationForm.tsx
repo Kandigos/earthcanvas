@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { sendRegistrationToWebhook } from '../lib/webhook';
 import { Event } from '../types';
-import { ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface RegistrationFormProps {
@@ -15,74 +14,57 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
     name: '',
     email: '',
     phone: '',
-    notes: ''
+    participants: 1,
+    eventDate: '',
+    specialRequests: '',
+    paymentStatus: 'pending'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const validateForm = (data: typeof formData) => {
+    if (!data.phone.match(/^[0-9]{10}$/)) {
+      throw new Error('מספר טלפון לא תקין');
+    }
+    if (data.participants < 1) {
+      throw new Error('מספר משתתפים לא תקין');
+    }
+    if (!data.eventDate) {
+      throw new Error('נא לבחור תאריך');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      validateForm(formData);
+
       const registrationData = {
         eventId: event.id,
         eventTitle: event.title,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        notes: formData.notes.trim(),
+        ...formData,
         registrationDate: new Date().toISOString(),
-        eventDate: event.date,
-        eventTime: event.time,
-        eventPrice: event.price
       };
 
-      const result = await sendRegistrationToWebhook(registrationData);
+      const success = await sendRegistrationToWebhook(registrationData);
 
-      if (result.success) {
+      if (success) {
         toast.success('ההרשמה בוצעה בהצלחה!');
-        setIsSubmitted(true);
+        onSuccess?.();
       } else {
-        toast.error(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
+        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
       }
     } catch (error) {
-      toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
-      console.error('Form submission error:', error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Show success message and payment button after submission
-  if (isSubmitted) {
-    return (
-      <div className="text-center space-y-6">
-        <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
-          <div className="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-earth-800 mb-3">ההרשמה הושלמה בהצלחה!</h3>
-          <p className="text-earth-600 mb-6">פרטי ההרשמה נשלחו למייל {formData.email}</p>
-          
-          {event.paymentLink && (
-            <div className="space-y-4">
-              <p className="text-earth-700 font-medium">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע</p>
-              <button
-                onClick={() => window.open(event.paymentLink, '_blank')}
-                className="inline-flex items-center justify-center gap-2 w-full bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition-colors"
-              >
-                <ExternalLink className="w-5 h-5" />
-                מעבר לתשלום
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -94,7 +76,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
-          placeholder="הכנס שם מלא"
+          dir="rtl"
         />
       </div>
 
@@ -106,7 +88,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.email}
           onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
-          placeholder="your@email.com"
+          dir="ltr"
         />
       </div>
 
@@ -118,17 +100,42 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.phone}
           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
-          placeholder="הכנס מספר טלפון"
+          dir="ltr"
+          placeholder="0501234567"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-earth-800 mb-2">הערות</label>
+        <label className="block text-sm font-medium text-earth-800 mb-2">מספר משתתפים</label>
+        <input
+          type="number"
+          required
+          min="1"
+          value={formData.participants}
+          onChange={(e) => setFormData(prev => ({ ...prev, participants: parseInt(e.target.value) }))}
+          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-earth-800 mb-2">תאריך</label>
+        <input
+          type="date"
+          required
+          value={formData.eventDate}
+          onChange={(e) => setFormData(prev => ({ ...prev, eventDate: e.target.value }))}
+          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-earth-800 mb-2">בקשות מיוחדות</label>
         <textarea
-          value={formData.notes}
-          onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500 min-h-[100px]"
-          placeholder="הערות נוספות (לא חובה)"
+          value={formData.specialRequests}
+          onChange={(e) => setFormData(prev => ({ ...prev, specialRequests: e.target.value }))}
+          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+          rows={3}
+          dir="rtl"
         />
       </div>
 
@@ -136,7 +143,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-sage-600 text-white py-3 rounded-lg hover:bg-sage-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-sage-600 text-white py-3 rounded-lg hover:bg-sage-700 transition-colors disabled:opacity-50"
         >
           {isSubmitting ? 'שולח...' : 'הרשמה לאירוע'}
         </button>
@@ -144,8 +151,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           <button
             type="button"
             onClick={onCancel}
-            disabled={isSubmitting}
-            className="flex-1 bg-earth-100 text-earth-800 py-3 rounded-lg hover:bg-earth-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-earth-100 text-earth-800 py-3 rounded-lg hover:bg-earth-200 transition-colors"
           >
             ביטול
           </button>
