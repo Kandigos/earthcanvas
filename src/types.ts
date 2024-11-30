@@ -7,13 +7,13 @@ export interface Event {
   maxParticipants?: number;
   price?: number;
   earlyBirdPrice?: number;
+  earlyBirdEnds?: string;
   totalSpots?: number;
   spotsLeft?: number;
   currentViewers?: number;
   location?: string;
   image?: string;
   paymentLink?: string;
-  earlyBirdEnds?: string;
   testimonials?: Testimonial[];
 }
 
@@ -28,6 +28,7 @@ export interface Registration {
   specialRequests: string;
   paymentStatus: 'pending' | 'completed' | 'failed';
   registrationDate: string;
+  isEarlyBird?: boolean;
 }
 
 export interface Testimonial {
@@ -43,4 +44,10 @@ export interface Testimonial {
 export interface EventCardProps {
   event: Event;
   testimonials?: Testimonial[];
+}
+
+export interface RegistrationModalProps {
+  event: Event;
+  isEarlyBird: boolean;
+  onClose: () => void;
 }

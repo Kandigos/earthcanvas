@@ -6,11 +6,12 @@ import toast from 'react-hot-toast';
 
 interface RegistrationFormProps {
   event: Event;
+  isEarlyBird: boolean;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFormProps) {
+export function RegistrationForm({ event, isEarlyBird, onSuccess, onCancel }: RegistrationFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -34,6 +35,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
         participants: formData.participants,
         specialRequests: formData.specialRequests,
         registrationDate: new Date().toISOString(),
+        isEarlyBird,
       };
 
       await sendRegistrationToWebhook(registrationData);
@@ -43,8 +45,8 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(
-        error instanceof Error 
-          ? `שגיאה בהרשמה: ${error.message}` 
+        error instanceof Error
+          ? `שגיאה בהרשמה: ${error.message}`
           : 'אירעה שגיאה בהרשמה. אנא נסו שנית.'
       );
     } finally {
@@ -122,7 +124,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           disabled={isSubmitting}
           loading={isSubmitting}
         >
-          {isSubmitting ? 'שולח...' : 'המשך להרשמה'}
+          {isSubmitting ? 'שולח...' : isEarlyBird ? 'המשך לתשלום מוזל' : 'המשך לתשלום'}
         </Button>
         {onCancel && (
           <Button
