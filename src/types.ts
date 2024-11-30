@@ -13,6 +13,7 @@ export interface Event {
   location?: string;
   image?: string;
   paymentLink?: string;
+  earlyBirdEnds?: string;
 }
 
 export interface Registration {
@@ -35,4 +36,5 @@ export interface Testimonial {
   image?: string;
   role?: string;
   date?: string;
+  rating?: number;
 }
