@@ -3,10 +3,16 @@ export interface Event {
   title: string;
   description?: string;
   date?: string;
+  time?: string;
   maxParticipants?: number;
   price?: number;
+  earlyBirdPrice?: number;
+  totalSpots?: number;
+  spotsLeft?: number;
+  currentViewers?: number;
   location?: string;
   image?: string;
+  paymentLink?: string;
 }
 
 export interface Registration {
@@ -20,4 +26,13 @@ export interface Registration {
   specialRequests: string;
   paymentStatus: 'pending' | 'completed' | 'failed';
   registrationDate: string;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  text: string;
+  image?: string;
+  role?: string;
+  date?: string;
 }
