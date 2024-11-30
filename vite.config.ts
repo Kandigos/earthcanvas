@@ -13,5 +13,31 @@ export default defineConfig({
         frame-src https://form.typeform.com;
       `.replace(/\s+/g, ' ').trim()
     }
+  },
+  build: {
+    rollupOptions: {
+      external: [
+        'react',
+        'react-dom',
+        'framer-motion',
+        'lucide-react',
+        'react-hot-toast',
+        '@react-spring/web',
+        'react-router-dom',
+        'react-use-measure',
+        '@mojs/core',
+        'firebase',
+        'axios'
+      ],
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'animation-vendor': ['framer-motion', '@react-spring/web', '@mojs/core'],
+          'ui-vendor': ['lucide-react', 'react-hot-toast']
+        }
+      }
+    },
+    sourcemap: true,
+    chunkSizeWarningLimit: 1000
   }
 });
