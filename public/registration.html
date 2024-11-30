@@ -77,7 +77,25 @@
         </form>
     </div>
 
-    <script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGToVX0B_fSahllDCO6dkK2LQftQAkItg",
+            authDomain: "kandigana-a72bc.firebaseapp.com",
+            projectId: "kandigana-a72bc",
+            storageBucket: "kandigana-a72bc.appspot.com",
+            messagingSenderId: "550155094203",
+            appId: "1:550155094203:web:b99190a47cf9e3ab1bc19e"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         document.getElementById('registrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -110,21 +128,31 @@
             if (!isValid) return;
 
             try {
-                const response = await fetch('https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj', {
+                // שמירת הנתונים ב-Firebase
+                await addDoc(collection(db, 'registrations'), {
+                    name,
+                    phone,
+                    email,
+                    timestamp: new Date().toISOString(),
+                    eventId: new URLSearchParams(window.location.search).get('eventId')
+                });
+
+                // שליחת הנתונים ל-webhook
+                await fetch('https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        name: name,
-                        phone: phone,
-                        email: email,
+                        name,
+                        phone,
+                        email,
                         timestamp: new Date().toISOString()
                     })
                 });
 
-                // נשנה את הלוגיקה כך שנעבור לדף התשלום בכל מקרה
+                // מעבר לדף התשלום
                 const payboxUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'; // החלף את זה עם הלינק האמיתי של פייבוקס
                 window.location.href = payboxUrl;
             } catch (error) {
