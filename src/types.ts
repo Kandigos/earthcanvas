@@ -14,6 +14,7 @@ export interface Event {
   image?: string;
   paymentLink?: string;
   earlyBirdEnds?: string;
+  testimonials?: Testimonial[];
 }
 
 export interface Registration {
@@ -36,5 +37,10 @@ export interface Testimonial {
   image?: string;
   role?: string;
   date?: string;
-  rating?: number;
+  rating: number;
+}
+
+export interface EventCardProps {
+  event: Event;
+  testimonials?: Testimonial[];
 }
