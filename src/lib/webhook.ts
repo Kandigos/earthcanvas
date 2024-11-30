@@ -13,27 +13,32 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
     
-    console.log('Sending data to webhook:', data);
+    // Format the data for the Google Sheet
+    const formData = new FormData();
+    formData.append('eventId', data.eventId);
+    formData.append('eventTitle', data.eventTitle);
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('phone', data.phone);
+    formData.append('registrationDate', data.registrationDate);
+    formData.append('eventDate', data.eventDate);
+    formData.append('eventTime', data.eventTime);
+    formData.append('eventPrice', data.eventPrice.toString());
+    if (data.notes) formData.append('notes', data.notes);
 
-    const response = await fetch(WEBHOOK_URL, {
+    console.log('Sending registration data to Google Script');
+
+    const response = await fetch(`${GOOGLE_SCRIPT_URL}?gid=0`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': window.location.origin
-      },
-      mode: 'no-cors', // Important for CORS issues
-      body: JSON.stringify(data)
+      mode: 'no-cors',
+      body: formData
     });
 
-    // Since we're using no-cors, we won't get the actual response data
-    // We'll assume success if the request didn't throw an error
     return { success: true };
-
   } catch (error) {
-    console.error('Error sending data:', error);
+    console.error('Error sending registration data:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error occurred'
