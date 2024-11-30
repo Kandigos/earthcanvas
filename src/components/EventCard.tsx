@@ -46,7 +46,7 @@ export function EventCard({ event }: EventCardProps) {
             fullWidth
             size="lg"
             icon={<Calendar className="w-5 h-5" />}
-            onClick={() => window.open(event.paymentLink, '_blank')}
+            onClick={() => window.location.href = '/registration.html'}
             className="mt-auto"
           >
             הרשמה לאירוע
