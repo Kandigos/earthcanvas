@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export interface RegistrationData {
   eventId: string;
   eventTitle: string;
@@ -13,36 +15,29 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    console.log('Sending registration data:', data);
+    console.log('Attempting to send registration data:', data);
 
-    // Use Make webhook directly in development
-    const WEBHOOK_URL = import.meta.env.DEV
-      ? 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'
-      : 'https://us-central1-kandigana-a72bc.cloudfunctions.net/forwardRegistration';
+    const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
 
-    console.log('Using webhook URL:', WEBHOOK_URL);
-
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
+    const response = await axios.post(WEBHOOK_URL, data, {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
-      body: JSON.stringify(data),
     });
 
-    console.log('Response status:', response.status);
+    console.log('Response received:', response.data);
 
-    const responseData = await response.text();
-    console.log('Response data:', responseData);
-
-    if (!response.ok) {
-      throw new Error(`Failed to send registration data: ${responseData}`);
-    }
-
-    return { success: true };
+    return { success: true, data: response.data };
   } catch (error) {
-    console.error('Error sending registration data:', error);
+    console.error('Registration error:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
+      return {
+        success: false,
+        error: `Error ${error.response?.status}: ${error.message}`
+      };
+    }
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error occurred'
