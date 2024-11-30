@@ -13,20 +13,23 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
+    // The base URL for your Google Apps Script
+    const BASE_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
     
-    // Create the parameters exactly matching the sheet columns
-    const params = new URLSearchParams({
-      'name': data.name,
-      'phone': data.phone,
-      'email': data.email,
-      'event': data.eventTitle,    // שם האירוע
-      'date': data.eventDate,      // תאריך
-      'time': data.eventTime       // שעה
-    });
+    // Encode the data properly
+    const encodedData = encodeURIComponent(JSON.stringify({
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      event: data.eventTitle,
+      date: data.eventDate,
+      time: data.eventTime
+    }));
 
-    // Log the data being sent
-    console.log('Registration data:', {
+    // Build the URL with the encoded data
+    const url = `${BASE_URL}?data=${encodedData}`;
+    
+    console.log('Sending data:', {
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -35,22 +38,21 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
       time: data.eventTime
     });
 
-    const fullUrl = `${SCRIPT_URL}?${params.toString()}`;
-    console.log('Sending request to:', fullUrl);
-
-    const response = await fetch(fullUrl, {
+    // Make the request
+    const response = await fetch(url, {
       method: 'GET',
-      mode: 'no-cors'
+      mode: 'no-cors',
+      cache: 'no-cache',
     });
 
-    console.log('Request sent');
+    console.log('Request sent successfully');
     return { success: true };
 
   } catch (error) {
-    console.error('Error sending registration:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error sending data:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
