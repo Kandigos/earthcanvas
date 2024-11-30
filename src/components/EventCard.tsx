@@ -31,12 +31,6 @@ export function EventCard({ event }: EventCardProps) {
           <h3 className="text-lg sm:text-xl font-semibold text-earth-800 line-clamp-2 flex-1">
             {event.title}
           </h3>
-          {event.capacity && (
-            <div className="flex items-center gap-1 text-sm text-earth-600 bg-earth-50 px-2 py-1 rounded-full mr-2">
-              <Users className="w-4 h-4" />
-              <span>{event.capacity}</span>
-            </div>
-          )}
         </div>
 
         <div className="text-earth-600 space-y-2 sm:space-y-3 mb-4 sm:mb-6">
@@ -52,6 +46,12 @@ export function EventCard({ event }: EventCardProps) {
             <PiggyBank className="w-5 h-5 text-sage-600 flex-shrink-0" />
             <p className="text-sm sm:text-base font-semibold">₪{event.price}</p>
           </div>
+          {event.capacity && (
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-sage-600 flex-shrink-0" />
+              <p className="text-sm sm:text-base">{event.capacity} משתתפים</p>
+            </div>
+          )}
         </div>
 
         {event.description && (
