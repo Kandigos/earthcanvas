@@ -1,10 +1,21 @@
 import { X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { Event } from '../types';
 import { RegistrationForm } from './RegistrationForm';
-import { RegistrationModalProps } from '../types';
 import CountdownTimer from './CountdownTimer';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export function RegistrationModal({ event, isEarlyBird, onClose }: RegistrationModalProps) {
+export function RegistrationModal({ 
+  event, 
+  onClose,
+}: { 
+  event: Event;
+  onClose: () => void;
+}) {
+  const [isEarlyBird] = useState(
+    event.earlyBirdEnds && new Date(event.earlyBirdEnds) > new Date()
+  );
+
   const handleSuccess = () => {
     if (event.paymentLink) {
       if (event.paymentLink.startsWith('http')) {
@@ -42,12 +53,16 @@ export function RegistrationModal({ event, isEarlyBird, onClose }: RegistrationM
           </div>
 
           {isEarlyBird && event.earlyBirdEnds && (
-            <div className="mb-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
               <CountdownTimer
                 endDate={event.earlyBirdEnds}
                 className="bg-sage-50 border border-sage-200"
               />
-            </div>
+            </motion.div>
           )}
 
           <RegistrationForm
@@ -58,7 +73,7 @@ export function RegistrationModal({ event, isEarlyBird, onClose }: RegistrationM
           />
 
           <div className="mt-4 text-sm text-earth-500 text-center">
-            {isEarlyBird ? (
+            {isEarlyBird && event.earlyBirdPrice ? (
               <p>מחיר מוזל: ₪{event.earlyBirdPrice} במקום ₪{event.price}</p>
             ) : (
               <p>מחיר: ₪{event.price}</p>
@@ -66,9 +81,13 @@ export function RegistrationModal({ event, isEarlyBird, onClose }: RegistrationM
           </div>
 
           {event.spotsLeft !== undefined && event.spotsLeft < 10 && (
-            <p className="mt-4 text-sm text-red-600 text-center">
+            <motion.p 
+              className="mt-4 text-sm text-red-600 text-center"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
               נותרו {event.spotsLeft} מקומות בלבד!
-            </p>
+            </motion.p>
           )}
         </motion.div>
       </motion.div>
