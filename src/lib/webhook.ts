@@ -15,30 +15,42 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
 
-    // Format date for better readability
-    const formattedDate = new Date(data.eventDate).toLocaleDateString('he-IL');
+    // Format date to dd.mm.yyyy
+    const dateParts = data.eventDate.split('-');
+    const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
     
-    // Build the submission data
     const registrationData = {
       gid: '0',
       name: data.name,
       phone: data.phone,
       email: data.email,
-      'פסטיבל/סדנא': data.eventTitle,  // Event column title in Hebrew
-      'תאריך': formattedDate,            // Date column title in Hebrew
-      'שעה': data.eventTime              // Time column title in Hebrew
+      // Try different variations of column names
+      'event': data.eventTitle,
+      'שם האירוע': data.eventTitle,
+      'אירוע': data.eventTitle,
+      'date': formattedDate,
+      'תאריך': formattedDate,
+      'time': data.eventTime,
+      'שעה': data.eventTime
     };
 
-    // Convert to URL parameters
-    const params = new URLSearchParams();
-    Object.entries(registrationData).forEach(([key, value]) => {
-      params.append(key, value ? value.toString() : '');
+    // Log the data we're sending
+    console.log('Event data being sent:', {
+      eventTitle: data.eventTitle,
+      eventDate: formattedDate,
+      eventTime: data.eventTime
     });
 
-    // Build the full URL
+    // Build URL parameters
+    const params = new URLSearchParams();
+    Object.entries(registrationData).forEach(([key, value]) => {
+      if (value) {
+        params.append(key, value.toString());
+      }
+    });
+
     const url = `${SCRIPT_URL}?${params.toString()}`;
-    console.log('Sending data:', registrationData);
-    console.log('Request URL:', url);
+    console.log('Full URL:', url);
 
     const response = await fetch(url, {
       method: 'GET',
