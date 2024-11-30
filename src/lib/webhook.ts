@@ -14,28 +14,34 @@ export interface RegistrationData {
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
-    
-    // Create URL with parameters for Google Sheet
-    const params = new URLSearchParams({
-      'event': data.eventTitle,
-      'date': data.eventDate,
-      'time': data.eventTime,
-      'name': data.name,
-      'email': data.email,
-      'phone': data.phone,
-      'notes': data.notes || '',
-      'price': data.eventPrice.toString()
+
+    // Format the data according to the Google Sheet columns
+    const queryParams = {
+      'Name': data.name,
+      'Email': data.email,
+      'Phone': data.phone,
+      'Event': data.eventTitle,  // שם האירוע
+      'Date': data.eventDate,    // תאריך האירוע
+      'Time': data.eventTime,    // שעת האירוע
+      'Price': data.eventPrice.toString(),
+      'Notes': data.notes || ''
+    };
+
+    // Convert to URL parameters
+    const params = new URLSearchParams();
+    Object.entries(queryParams).forEach(([key, value]) => {
+      params.append(key, value);
     });
 
-    console.log('Sending data with params:', params.toString());
+    console.log('Sending data:', queryParams);
 
-    const fullUrl = `${GOOGLE_SCRIPT_URL}?${params.toString()}`;
-    
-    const response = await fetch(fullUrl, {
-      method: 'GET', // Changed to GET to work better with Google Scripts
+    // Make the request
+    const response = await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+      method: 'GET',
       mode: 'no-cors',
     });
 
+    // Since we're using no-cors, we'll assume success if no error was thrown
     return { success: true };
   } catch (error) {
     console.error('Error sending registration data:', error);
