@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useEvents } from '../hooks/useEvents';
 import { useAuth } from '../hooks/useAuth';
 import { Event } from '../types';
-import { Trash2, LogOut, Loader, Plus, Eye } from 'lucide-react';
+import { Trash2, LogOut, Loader, Plus, Eye, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AuthModal } from '../components/AuthModal';
 import { PreviewModal } from '../components/PreviewModal';
@@ -10,20 +10,25 @@ import { useNavigate } from 'react-router-dom';
 import { Container } from '../components/Container';
 import { Button } from '../components/Button';
 
+type NewEventForm = Omit<Event, 'id'>;
+
+const defaultNewEvent: Partial<NewEventForm> = {
+  title: '',
+  date: '',
+  time: '',
+  price: 0,
+  description: '',
+  paymentLink: '',
+  capacity: undefined
+};
+
 export function AdminPage() {
   const { events, loading, addEvent, deleteEvent } = useEvents();
   const { isAuthenticated, login, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(!isAuthenticated);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const navigate = useNavigate();
-  const [newEvent, setNewEvent] = useState<Partial<Event>>({
-    title: '',
-    date: '',
-    time: '',
-    price: 0,
-    description: '',
-    paymentLink: '',
-  });
+  const [newEvent, setNewEvent] = useState<Partial<NewEventForm>>(defaultNewEvent);
 
   const handleLogin = (password: string) => {
     const success = login(password);
@@ -45,17 +50,15 @@ export function AdminPage() {
       return;
     }
 
-    const success = await addEvent(newEvent as Event);
+    // Filter out undefined values for optional fields
+    const eventData = Object.fromEntries(
+      Object.entries(newEvent).filter(([_, value]) => value !== undefined)
+    ) as NewEventForm;
+
+    const success = await addEvent(eventData);
     if (success) {
       toast.success('האירוע נוסף בהצלחה');
-      setNewEvent({
-        title: '',
-        date: '',
-        time: '',
-        price: 0,
-        description: '',
-        paymentLink: '',
-      });
+      setNewEvent(defaultNewEvent);
     } else {
       toast.error('אירעה שגיאה בהוספת האירוע');
     }
@@ -102,7 +105,7 @@ export function AdminPage() {
             <label className="block text-sm font-medium text-nature-charcoal mb-2">כותרת</label>
             <input
               type="text"
-              value={newEvent.title}
+              value={newEvent.title || ''}
               onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
               placeholder="שם האירוע"
@@ -112,7 +115,7 @@ export function AdminPage() {
             <label className="block text-sm font-medium text-nature-charcoal mb-2">תאריך</label>
             <input
               type="date"
-              value={newEvent.date}
+              value={newEvent.date || ''}
               onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
             />
@@ -121,7 +124,7 @@ export function AdminPage() {
             <label className="block text-sm font-medium text-nature-charcoal mb-2">שעה</label>
             <input
               type="time"
-              value={newEvent.time}
+              value={newEvent.time || ''}
               onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
             />
@@ -130,30 +133,44 @@ export function AdminPage() {
             <label className="block text-sm font-medium text-nature-charcoal mb-2">מחיר</label>
             <input
               type="number"
-              value={newEvent.price}
+              value={newEvent.price || 0}
               onChange={(e) => setNewEvent({ ...newEvent, price: Number(e.target.value) })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
               placeholder="מחיר בש״ח"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-nature-charcoal mb-2">מספר משתתפים</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={newEvent.capacity || ''}
+                onChange={(e) => setNewEvent({ ...newEvent, capacity: Number(e.target.value) })}
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
+                placeholder="מספר משתתפים מקסימלי"
+                min="0"
+              />
+              <Users className="w-5 h-5 text-nature-charcoal/60" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-nature-charcoal mb-2">קישור לתשלום</label>
+            <input
+              type="url"
+              value={newEvent.paymentLink || ''}
+              onChange={(e) => setNewEvent({ ...newEvent, paymentLink: e.target.value })}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
+              placeholder="קישור לדף התשלום"
+            />
+          </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-nature-charcoal mb-2">תיאור</label>
             <textarea
-              value={newEvent.description}
+              value={newEvent.description || ''}
               onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
               rows={4}
               placeholder="תיאור האירוע"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-nature-charcoal mb-2">קישור לתשלום</label>
-            <input
-              type="url"
-              value={newEvent.paymentLink}
-              onChange={(e) => setNewEvent({ ...newEvent, paymentLink: e.target.value })}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-nature-green focus:border-nature-green outline-none"
-              placeholder="קישור לדף התשלום"
             />
           </div>
         </div>
