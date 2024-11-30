@@ -1,17 +1,19 @@
 {
-  "name": "My new app",
+  "name": "earthcanvas",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "netlify dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@mojs/core": "^1.3.0",
+    "@netlify/functions": "^2.6.0",
     "@react-spring/web": "^9.7.5",
+    "axios": "^1.6.8",
     "firebase": "^11.0.2",
     "framer-motion": "^11.12.0",
     "lucide-react": "^0.453.0",
