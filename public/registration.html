@@ -175,28 +175,37 @@
                     eventTime: eventData.time || ''
                 };
 
+                // שמירה ב-Firebase
                 await addDoc(collection(db, 'registrations'), registrationData);
                 console.log('נשמר בהצלחה ב-Firebase');
 
-                // שליחת הנתונים ל-webhook
-                const webhookUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(registrationData)
-                });
+                // שליחת הנתונים ל-Google Apps Script
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbziwK_hTMqHaE-XM7qUD0WVBVvhetm8iPbUAHrWDkwls2Rq1ZlRf2Qbvz66aVshDmA6zQ/exec';
+                
+                try {
+                    const response = await fetch(googleScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            phone: phone,
+                            email: email,
+                            eventId: eventId,
+                            eventTitle: eventData.title || '',
+                            eventDate: eventData.date || '',
+                            eventTime: eventData.time || '',
+                            timestamp: new Date().toISOString()
+                        })
+                    });
 
-                if (!response.ok) {
-                    console.error('תגובה מה-webhook:', response.status);
-                    const responseText = await response.text();
-                    console.error('תוכן התגובה:', responseText);
-                    throw new Error(`שגיאה בשליחה ל-webhook: ${response.status}`);
+                    console.log('נשלח בהצלחה ל-Google Sheets');
+                } catch (error) {
+                    console.error('שגיאה בשליחה ל-Google Sheets:', error);
+                    // ממשיכים למרות השגיאה כי המידע כבר נשמר ב-Firebase
                 }
-
-                console.log('נשלח בהצלחה ל-webhook');
 
                 // מעבר לדף התשלום של פייבוקס
                 const payboxUrl = `https://payboxapp.page.link/earthcanvas?event=${eventId}`; // דוגמה - יש להחליף עם הלינק האמיתי
