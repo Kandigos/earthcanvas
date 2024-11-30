@@ -1,5 +1,3 @@
-const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
-
 export interface RegistrationData {
   eventId: string;
   eventTitle: string;
@@ -15,17 +13,17 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    console.log('Sending registration data:', data); // Debug log
-
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(data),
-      mode: 'cors',
-    });
+    // Use the Firebase Function URL instead of Make.com directly
+    const response = await fetch(
+      'https://us-central1-kandigana-a72bc.cloudfunctions.net/forwardRegistration',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
