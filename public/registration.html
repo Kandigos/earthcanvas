@@ -129,6 +129,12 @@
             const email = document.getElementById('email').value;
             const eventId = new URLSearchParams(window.location.search).get('eventId');
             
+            if (!eventId) {
+                console.error('לא נמצא מזהה אירוע');
+                alert('שגיאה: לא נמצא מזהה אירוע');
+                return;
+            }
+            
             // Basic validation
             let isValid = true;
             
@@ -152,10 +158,13 @@
             try {
                 // קבל את פרטי האירוע
                 const eventDoc = await getDoc(doc(db, 'events', eventId));
-                const eventData = eventDoc.exists() ? eventDoc.data() : {};
+                if (!eventDoc.exists()) {
+                    throw new Error('האירוע לא נמצא');
+                }
+                const eventData = eventDoc.data();
 
                 // שמירת הנתונים ב-Firebase
-                await addDoc(collection(db, 'registrations'), {
+                const registrationData = {
                     name,
                     phone,
                     email,
@@ -164,44 +173,37 @@
                     eventTitle: eventData.title || '',
                     eventDate: eventData.date || '',
                     eventTime: eventData.time || ''
-                });
+                };
 
+                await addDoc(collection(db, 'registrations'), registrationData);
                 console.log('נשמר בהצלחה ב-Firebase');
 
                 // שליחת הנתונים ל-webhook
-                const response = await fetch('https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj', {
+                const webhookUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
+                const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Origin': window.location.origin
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        name,
-                        phone,
-                        email,
-                        timestamp: new Date().toISOString(),
-                        eventId,
-                        eventTitle: eventData.title || '',
-                        eventDate: eventData.date || '',
-                        eventTime: eventData.time || ''
-                    })
+                    body: JSON.stringify(registrationData)
                 });
 
-                console.log('תגובה מה-webhook:', response.status, await response.text());
-
                 if (!response.ok) {
+                    console.error('תגובה מה-webhook:', response.status);
+                    const responseText = await response.text();
+                    console.error('תוכן התגובה:', responseText);
                     throw new Error(`שגיאה בשליחה ל-webhook: ${response.status}`);
                 }
 
-                // מעבר לדף התשלום
-                const payboxUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'; // החלף את זה עם הלינק האמיתי של פייבוקס
+                console.log('נשלח בהצלחה ל-webhook');
+
+                // מעבר לדף התשלום של פייבוקס
+                const payboxUrl = `https://payboxapp.page.link/earthcanvas?event=${eventId}`; // דוגמה - יש להחליף עם הלינק האמיתי
                 window.location.href = payboxUrl;
             } catch (error) {
                 console.error('שגיאה מפורטת:', error);
-                // גם במקרה של שגיאה, נעבור לדף התשלום
-                const payboxUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'; // החלף את זה עם הלינק האמיתי של פייבוקס
-                window.location.href = payboxUrl;
+                alert('אירעה שגיאה בתהליך ההרשמה. אנא נסה שוב או צור קשר עם התמיכה.');
             }
         });
     </script>
