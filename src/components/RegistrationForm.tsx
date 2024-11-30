@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { sendRegistrationToWebhook, RegistrationData } from '../lib/webhook';
 import { Event } from '../types';
-import toast from 'react-hot-toast';
 import { AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface RegistrationFormProps {
   event: Event;
@@ -18,6 +18,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
     notes: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +44,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
 
       if (result.success) {
         toast.success('ההרשמה בוצעה בהצלחה!');
-        onSuccess?.();
+        setIsSubmitted(true);
       } else {
         setError(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
         toast.error(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
@@ -56,6 +57,23 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
       setIsSubmitting(false);
     }
   };
+
+  if (isSubmitted && event.paymentLink) {
+    return (
+      <div className="text-center space-y-6">
+        <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
+          <h3 className="text-xl font-semibold text-earth-800 mb-3">ההרשמה הושלמה בהצלחה!</h3>
+          <p className="text-earth-600 mb-6">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע.</p>
+          <button
+            onClick={() => window.open(event.paymentLink, '_blank')}
+            className="bg-sage-600 text-white px-8 py-3 rounded-lg hover:bg-sage-700 transition-colors w-full sm:w-auto"
+          >
+            מעבר לתשלום
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
