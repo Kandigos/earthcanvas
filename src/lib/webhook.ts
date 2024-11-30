@@ -22,17 +22,33 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
     });
 
     const responseData = await response.json();
+    console.log('Server response:', responseData);
 
     if (!response.ok) {
-      console.error('Registration failed:', responseData);
-      throw new Error(responseData.error || 'Failed to send registration data');
+      const errorMessage = responseData.error || 'שגיאה בשליחת הטופס';
+      console.error('Registration failed:', errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    if (!responseData.success) {
+      const errorMessage = responseData.error || 'שגיאה בלתי ידועה';
+      console.error('Registration processing failed:', errorMessage);
+      throw new Error(errorMessage);
     }
 
     console.log('Registration successful:', responseData);
     return responseData;
 
   } catch (error) {
-    console.error('Error sending registration data:', error);
-    throw error;
+    let errorMessage = 'שגיאה בשליחת הטופס';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (error && typeof error === 'object') {
+      errorMessage = JSON.stringify(error);
+    }
+
+    console.error('Error sending registration data:', errorMessage);
+    throw new Error(errorMessage);
   }
 }
