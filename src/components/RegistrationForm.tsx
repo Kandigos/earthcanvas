@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { sendRegistrationToWebhook, RegistrationData } from '../lib/webhook';
 import { Event } from '../types';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Button } from './Button';
 
 interface RegistrationFormProps {
   event: Event;
@@ -46,8 +47,8 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
         toast.success('ההרשמה בוצעה בהצלחה!');
         setIsSubmitted(true);
       } else {
-        setError(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
-        toast.error(result.error || 'אירעה שגיאה בהרשמה. אנא נסו שנית.');
+        setError('אירעה שגיאה בהרשמה. אנא נסו שנית.');
+        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'אירעה שגיאה בהרשמה. אנא נסו שנית.';
@@ -58,18 +59,40 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
     }
   };
 
-  if (isSubmitted && event.paymentLink) {
+  const handlePayment = () => {
+    if (event.paymentLink) {
+      window.open(event.paymentLink, '_blank');
+    } else {
+      toast.error('קישור לתשלום אינו זמין כרגע');
+    }
+  };
+
+  if (isSubmitted) {
     return (
       <div className="text-center space-y-6">
         <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">
+          <div className="w-16 h-16 bg-sage-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
           <h3 className="text-xl font-semibold text-earth-800 mb-3">ההרשמה הושלמה בהצלחה!</h3>
-          <p className="text-earth-600 mb-6">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע.</p>
-          <button
-            onClick={() => window.open(event.paymentLink, '_blank')}
-            className="bg-sage-600 text-white px-8 py-3 rounded-lg hover:bg-sage-700 transition-colors w-full sm:w-auto"
-          >
-            מעבר לתשלום
-          </button>
+          <p className="text-earth-600 mb-6">פרטי ההרשמה נשלחו למייל {formData.email}</p>
+          
+          {event.paymentLink && (
+            <div className="space-y-4">
+              <p className="text-earth-700 font-medium">כעת נותר רק להשלים את התשלום כדי להבטיח את מקומך באירוע.</p>
+              <Button
+                variant="primary"
+                fullWidth
+                size="lg"
+                icon={<ExternalLink className="w-5 h-5" />}
+                onClick={handlePayment}
+              >
+                מעבר לתשלום
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -131,22 +154,25 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
       </div>
 
       <div className="flex gap-4">
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={isSubmitting}
-          className="flex-1 bg-sage-600 text-white py-3 rounded-lg hover:bg-sage-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          fullWidth
+          loading={isSubmitting}
         >
           {isSubmitting ? 'שולח...' : 'הרשמה לאירוע'}
-        </button>
+        </Button>
         {onCancel && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 bg-earth-100 text-earth-800 py-3 rounded-lg hover:bg-earth-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            fullWidth
           >
             ביטול
-          </button>
+          </Button>
         )}
       </div>
     </form>
