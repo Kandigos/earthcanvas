@@ -1,4 +1,5 @@
 import { Calendar, Clock, PiggyBank } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Event } from '../types';
 import { Button } from './Button';
 import { motion } from 'framer-motion';
@@ -8,6 +9,8 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -40,18 +43,16 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         </div>
         <p className="text-earth-700 mb-6 leading-relaxed text-sm sm:text-base line-clamp-3">{event.description}</p>
-        {event.paymentLink && (
-          <Button
-            variant="primary"
-            fullWidth
-            size="lg"
-            icon={<Calendar className="w-5 h-5" />}
-            onClick={() => window.location.href = `/registration.html?eventId=${event.id}`}
-            className="mt-auto"
-          >
-            הרשמה לאירוע
-          </Button>
-        )}
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
+          icon={<Calendar className="w-5 h-5" />}
+          onClick={() => navigate(`/registration/${event.id}`)}
+          className="mt-auto"
+        >
+          הרשמה לאירוע
+        </Button>
       </div>
     </motion.div>
   );
