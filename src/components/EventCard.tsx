@@ -10,6 +10,18 @@ export function EventCard({ event, testimonials }: EventCardProps) {
     ? testimonials.reduce((acc, curr) => acc + curr.rating, 0) / testimonials.length
     : 0;
 
+  const handleRegistration = () => {
+    if (event.paymentLink) {
+      // אם זה URL מלא, נשתמש בו ישירות
+      if (event.paymentLink.startsWith('http')) {
+        window.location.href = event.paymentLink;
+      } else {
+        // אם זה נתיב יחסי, נוסיף את ה-origin
+        window.location.href = `${window.location.origin}${event.paymentLink}`;
+      }
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -85,7 +97,7 @@ export function EventCard({ event, testimonials }: EventCardProps) {
             fullWidth
             size="lg"
             icon={<Calendar className="w-5 h-5" />}
-            onClick={() => window.location.href = `/registration.html?eventId=${event.id}`}
+            onClick={handleRegistration}
             className="mt-auto"
           >
             הרשמה לאירוע
