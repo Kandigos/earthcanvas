@@ -13,36 +13,32 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    // The base URL for your Google Apps Script
-    const BASE_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
+    // The new Apps Script URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfQLzH7C9XkmhI4Bq6RBkIlQP8o47a_OlOTlE0K1dQt-iKTQWrISk8nz8Gtxcg5v_sfg/exec';
     
-    // Encode the data properly
-    const encodedData = encodeURIComponent(JSON.stringify({
+    // Prepare the data
+    const formData = {
       name: data.name,
       phone: data.phone,
       email: data.email,
       event: data.eventTitle,
       date: data.eventDate,
       time: data.eventTime
-    }));
+    };
 
-    // Build the URL with the encoded data
-    const url = `${BASE_URL}?data=${encodedData}`;
-    
-    console.log('Sending data:', {
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      event: data.eventTitle,
-      date: data.eventDate,
-      time: data.eventTime
+    // Build URL with parameters
+    const params = new URLSearchParams();
+    Object.entries(formData).forEach(([key, value]) => {
+      params.append(key, value.toString());
     });
+
+    const url = `${SCRIPT_URL}?${params.toString()}`;
+    console.log('Sending request to:', url);
 
     // Make the request
     const response = await fetch(url, {
       method: 'GET',
-      mode: 'no-cors',
-      cache: 'no-cache',
+      mode: 'no-cors'
     });
 
     console.log('Request sent successfully');
