@@ -13,21 +13,31 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    // Use the Firebase Function URL instead of Make.com directly
-    const response = await fetch(
-      'https://us-central1-kandigana-a72bc.cloudfunctions.net/forwardRegistration',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    console.log('Sending registration data:', data);
+
+    // Use Make webhook directly in development
+    const WEBHOOK_URL = import.meta.env.DEV
+      ? 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'
+      : 'https://us-central1-kandigana-a72bc.cloudfunctions.net/forwardRegistration';
+
+    console.log('Using webhook URL:', WEBHOOK_URL);
+
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log('Response status:', response.status);
+
+    const responseData = await response.text();
+    console.log('Response data:', responseData);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to send registration data: ${errorText}`);
+      throw new Error(`Failed to send registration data: ${responseData}`);
     }
 
     return { success: true };
