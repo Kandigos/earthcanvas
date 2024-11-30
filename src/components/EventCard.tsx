@@ -1,57 +1,82 @@
 import { Calendar, Clock, PiggyBank } from 'lucide-react';
 import { Event } from '../types';
-import { Button } from './Button';
+import { EventPricingInfo } from './EventPricingInfo';
+import { EventSocialProof } from './EventSocialProof';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface EventCardProps {
   event: Event;
+  testimonials?: any[];
+  recentRegistrations?: any[];
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ 
+  event,
+  testimonials = [],
+  recentRegistrations = []
+}: EventCardProps) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      whileTap={{ scale: 0.98 }}
-      className="relative overflow-hidden bg-gradient-to-br from-earth-100 via-earth-50 to-sage-100 p-4 sm:p-6 rounded-lg shadow-sm border border-earth-200/50 hover:shadow-md transition-all duration-300"
+      className="bg-white rounded-lg overflow-hidden shadow-sm border border-earth-200/50 transition-all duration-300"
     >
-      {/* Multiple layered gradient backgrounds for depth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-earth-200/30 via-transparent to-sage-200/30" />
-      <div className="absolute inset-0 bg-gradient-to-tr from-sage-100/20 via-transparent to-earth-100/20" />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage-200/20 via-earth-100/10 to-earth-200/20 rounded-full -mr-16 -mt-16 blur-sm" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-earth-200/20 via-sage-100/10 to-sage-200/20 rounded-full -ml-12 -mb-12 blur-sm" />
-
-      {/* Content */}
-      <div className="relative">
-        <h3 className="text-lg sm:text-xl font-semibold text-earth-800 mb-4 line-clamp-2">{event.title}</h3>
-        <div className="text-earth-600 space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-sage-600 flex-shrink-0" />
-            <p className="text-sm sm:text-base">{event.date}</p>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold text-earth-800 mb-4">{event.title}</h3>
+        
+        {/* Event Details */}
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center gap-2 text-earth-600">
+            <Calendar className="w-5 h-5 text-sage-600" />
+            <span>{event.date}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-sage-600 flex-shrink-0" />
-            <p className="text-sm sm:text-base">{event.time}</p>
+          <div className="flex items-center gap-2 text-earth-600">
+            <Clock className="w-5 h-5 text-sage-600" />
+            <span>{event.time}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <PiggyBank className="w-5 h-5 text-sage-600 flex-shrink-0" />
-            <p className="text-sm sm:text-base font-semibold">₪{event.price}</p>
-          </div>
+          {!event.earlyBirdPrice && (
+            <div className="flex items-center gap-2 text-earth-600">
+              <PiggyBank className="w-5 h-5 text-sage-600" />
+              <span>₪{event.price}</span>
+            </div>
+          )}
         </div>
-        <p className="text-earth-700 mb-6 leading-relaxed text-sm sm:text-base line-clamp-3">{event.description}</p>
-        {event.paymentLink && (
-          <Button
-            variant="primary"
-            fullWidth
-            size="lg"
-            icon={<Calendar className="w-5 h-5" />}
-            onClick={() => window.location.href = `/registration.html?eventId=${event.id}`}
-            className="mt-auto"
-          >
-            הרשמה לאירוע
-          </Button>
+
+        {/* Early Bird Pricing if available */}
+        {event.earlyBirdPrice && event.earlyBirdEnds && (
+          <div className="mb-6">
+            <EventPricingInfo
+              eventDate={event.earlyBirdEnds}
+              originalPrice={event.price}
+              earlyBirdPrice={event.earlyBirdPrice}
+              totalSpots={event.totalSpots}
+              spotsLeft={event.spotsLeft}
+            />
+          </div>
         )}
+
+        {/* Description */}
+        <p className="text-earth-600 mb-6">{event.description}</p>
+
+        {/* Social Proof */}
+        <div className="mb-6">
+          <EventSocialProof
+            eventId={event.id}
+            recentRegistrations={recentRegistrations}
+            testimonials={testimonials}
+            currentViewers={event.currentViewers || 0}
+          />
+        </div>
+
+        {/* Registration Button */}
+        <button
+          onClick={() => navigate(`/registration/${event.id}`)}
+          className="w-full bg-sage-600 text-white py-3 px-6 rounded-lg hover:bg-sage-700 transition-colors text-center font-medium"
+        >
+          הרשמה לאירוע
+        </button>
       </div>
     </motion.div>
   );
