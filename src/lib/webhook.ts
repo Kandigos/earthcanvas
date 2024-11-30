@@ -15,10 +15,10 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    console.log('Attempting to send registration data:', data);
+    console.log('Sending registration data:', data);
 
-    // Use Netlify function endpoint
-    const response = await axios.post('/api/registration', data, {
+    // Uses the Netlify Functions path
+    const response = await axios.post('/.netlify/functions/registration', data, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -34,11 +34,11 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
   } catch (error) {
     console.error('Registration error:', error);
     if (axios.isAxiosError(error)) {
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('Error details:', errorMessage);
       return {
         success: false,
-        error: error.response?.data?.error || error.message
+        error: errorMessage
       };
     }
     return { 
