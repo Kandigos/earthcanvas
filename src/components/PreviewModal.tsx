@@ -8,6 +8,17 @@ interface PreviewModalProps {
 }
 
 export function PreviewModal({ event, onClose }: PreviewModalProps) {
+  const previewEvent: Event = {
+    id: 'preview',
+    title: event.title || 'ללא כותרת',
+    date: event.date || 'לא נקבע תאריך',
+    time: event.time || 'לא נקבעה שעה',
+    price: event.price || 0,
+    description: event.description || 'אין תיאור',
+    ...(event.paymentLink && { paymentLink: event.paymentLink }),
+    ...(event.capacity && { capacity: event.capacity })
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-nature-cream rounded-lg p-6 max-w-md w-full relative">
@@ -21,17 +32,7 @@ export function PreviewModal({ event, onClose }: PreviewModalProps) {
         <h2 className="text-2xl font-bold mb-6 text-nature-charcoal">תצוגה מקדימה</h2>
         
         <div className="max-h-[70vh] overflow-y-auto">
-          <EventCard 
-            event={{
-              id: 'preview',
-              title: event.title || 'ללא כותרת',
-              date: event.date || 'לא נקבע תאריך',
-              time: event.time || 'לא נקבעה שעה',
-              price: event.price || 0,
-              description: event.description || 'אין תיאור',
-              paymentLink: event.paymentLink,
-            }} 
-          />
+          <EventCard event={previewEvent} />
         </div>
       </div>
     </div>
