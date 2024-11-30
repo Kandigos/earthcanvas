@@ -99,9 +99,6 @@ export function RegistrationPage() {
           <div className="p-6">
             <RegistrationForm 
               event={event}
-              onSuccess={() => {
-                navigate('/events');
-              }}
               onCancel={() => navigate('/events')}
             />
           </div>
