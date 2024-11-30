@@ -16,42 +16,43 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
     // Base URL of your Google Apps Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
     
-    // Current timestamp in Israel timezone
-    const timestamp = new Date().toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' });
-
-    // Create the parameters object matching exact column names in your sheet
-    const params = new URLSearchParams({
-      'Timestamp': timestamp,
-      'Full Name': data.name,
-      'Email Address': data.email,
-      'Phone Number': data.phone,
-      'Event Name': data.eventTitle,
-      'Event Date': data.eventDate,
-      'Event Time': data.eventTime,
-      'Event Price': data.eventPrice.toString(),
-      'Comments': data.notes || '',
+    // Format timestamp for Israel timezone
+    const timestamp = new Date().toLocaleString('he-IL', { 
+      timeZone: 'Asia/Jerusalem',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
 
-    // Log the URL being sent for debugging
+    // Create URL with all parameters
+    const params = new URLSearchParams({
+      'timestamp': timestamp,
+      'name': data.name,
+      'email': data.email,
+      'phone': data.phone,
+      'event': data.eventTitle,
+      'date': data.eventDate,
+      'time': data.eventTime,
+      'price': data.eventPrice.toString(),
+      'notes': data.notes || ''
+    });
+
     const fullUrl = `${SCRIPT_URL}?${params.toString()}`;
     console.log('Sending request to:', fullUrl);
 
-    // Make the request
+    // Use no-cors mode to avoid CORS issues
     const response = await fetch(fullUrl, {
       method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+      mode: 'no-cors',
     });
 
-    // For debugging
-    console.log('Response status:', response.status);
-    const responseText = await response.text();
-    console.log('Response body:', responseText);
-
+    // Since we're using no-cors, we'll assume success if no error is thrown
+    console.log('Request sent successfully');
     return { success: true };
+    
   } catch (error) {
     console.error('Error sending registration:', error);
     return {
