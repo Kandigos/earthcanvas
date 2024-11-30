@@ -6,6 +6,7 @@ import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { AdminPage } from './pages/AdminPage';
 import { EventsPage } from './pages/EventsPage';
+import { RegistrationPage } from './pages/RegistrationPage';
 import { PageTransition } from './components/PageTransition';
 import './index.css';
 
@@ -17,6 +18,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
         <Route path="/events" element={<PageTransition><EventsPage /></PageTransition>} />
+        <Route path="/registration/:eventId" element={<PageTransition><RegistrationPage /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><AdminPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>
