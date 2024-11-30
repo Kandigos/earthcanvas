@@ -7,23 +7,24 @@ export interface RegistrationData {
   email: string;
   phone: string;
   registrationDate: string;
-  notes?: string;
   eventDate: string;
   eventTime: string;
   eventPrice: number;
+  notes?: string;
 }
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
+    console.log('Sending registration data:', data); // Debug log
+
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        ...data,
-        registrationDate: data.registrationDate || new Date().toISOString(),
-      }),
+      body: JSON.stringify(data),
+      mode: 'cors',
     });
 
     if (!response.ok) {
