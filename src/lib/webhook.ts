@@ -13,41 +13,50 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
+    // Base URL of your Google Apps Script
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXL3LyOs7jGf1t1MJ55PDsD7qnwHqkJeSXefNq55mw9ALYfLZ9YUcaH0xCMl8a7G3mFg/exec';
+    
+    // Current timestamp in Israel timezone
+    const timestamp = new Date().toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' });
 
-    // Format the data according to the Google Sheet columns
-    const queryParams = {
-      'Name': data.name,
-      'Email': data.email,
-      'Phone': data.phone,
-      'Event': data.eventTitle,  // שם האירוע
-      'Date': data.eventDate,    // תאריך האירוע
-      'Time': data.eventTime,    // שעת האירוע
-      'Price': data.eventPrice.toString(),
-      'Notes': data.notes || ''
-    };
-
-    // Convert to URL parameters
-    const params = new URLSearchParams();
-    Object.entries(queryParams).forEach(([key, value]) => {
-      params.append(key, value);
+    // Create the parameters object matching exact column names in your sheet
+    const params = new URLSearchParams({
+      'Timestamp': timestamp,
+      'Full Name': data.name,
+      'Email Address': data.email,
+      'Phone Number': data.phone,
+      'Event Name': data.eventTitle,
+      'Event Date': data.eventDate,
+      'Event Time': data.eventTime,
+      'Event Price': data.eventPrice.toString(),
+      'Comments': data.notes || '',
     });
 
-    console.log('Sending data:', queryParams);
+    // Log the URL being sent for debugging
+    const fullUrl = `${SCRIPT_URL}?${params.toString()}`;
+    console.log('Sending request to:', fullUrl);
 
     // Make the request
-    const response = await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+    const response = await fetch(fullUrl, {
       method: 'GET',
-      mode: 'no-cors',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
 
-    // Since we're using no-cors, we'll assume success if no error was thrown
+    // For debugging
+    console.log('Response status:', response.status);
+    const responseText = await response.text();
+    console.log('Response body:', responseText);
+
     return { success: true };
   } catch (error) {
-    console.error('Error sending registration data:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    console.error('Error sending registration:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
