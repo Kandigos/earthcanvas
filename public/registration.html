@@ -114,6 +114,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         name: name,
@@ -123,15 +124,14 @@
                     })
                 });
 
-                if (response.ok) {
-                    // כאן צריך להכניס את הלינק לדף התשלום של פייבוקס
-                    window.location.href = 'YOUR_PAYBOX_PAYMENT_URL';
-                } else {
-                    alert('אירעה שגיאה בתהליך ההרשמה. אנא נסו שנית.');
-                }
+                // נשנה את הלוגיקה כך שנעבור לדף התשלום בכל מקרה
+                const payboxUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'; // החלף את זה עם הלינק האמיתי של פייבוקס
+                window.location.href = payboxUrl;
             } catch (error) {
                 console.error('Error:', error);
-                alert('אירעה שגיאה בתהליך ההרשמה. אנא נסו שנית.');
+                // גם במקרה של שגיאה, נעבור לדף התשלום
+                const payboxUrl = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj'; // החלף את זה עם הלינק האמיתי של פייבוקס
+                window.location.href = payboxUrl;
             }
         });
     </script>
