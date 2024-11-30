@@ -17,15 +17,18 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
     console.log('Attempting to send registration data:', data);
 
-    const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
-
-    const response = await axios.post(WEBHOOK_URL, data, {
+    // Use Netlify function endpoint
+    const response = await axios.post('/api/registration', data, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
     console.log('Response received:', response.data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || 'Registration failed');
+    }
 
     return { success: true, data: response.data };
   } catch (error) {
@@ -35,7 +38,7 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
       console.error('Response status:', error.response?.status);
       return {
         success: false,
-        error: `Error ${error.response?.status}: ${error.message}`
+        error: error.response?.data?.error || error.message
       };
     }
     return { 
