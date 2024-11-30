@@ -30,7 +30,14 @@ export function PreviewModal({ event, onClose }: PreviewModalProps) {
               price: event.price || 0,
               description: event.description || 'אין תיאור',
               paymentLink: event.paymentLink,
-            }} 
+              earlyBirdPrice: event.earlyBirdPrice,
+              totalSpots: event.totalSpots || 50,
+              spotsLeft: event.spotsLeft || 50,
+              earlyBirdEnds: event.earlyBirdEnds,
+              currentViewers: event.currentViewers || 0,
+            } as Event} 
+            testimonials={[]}
+            recentRegistrations={[]}
           />
         </div>
       </div>
