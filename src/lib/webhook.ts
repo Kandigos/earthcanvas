@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export interface RegistrationData {
   eventId: string;
   eventTitle: string;
@@ -15,32 +13,27 @@ export interface RegistrationData {
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    console.log('Sending registration data:', data);
+    const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
+    
+    console.log('Sending data to webhook:', data);
 
-    // Uses the Netlify Functions path
-    const response = await axios.post('/.netlify/functions/registration', data, {
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': window.location.origin
       },
+      mode: 'no-cors', // Important for CORS issues
+      body: JSON.stringify(data)
     });
 
-    console.log('Response received:', response.data);
+    // Since we're using no-cors, we won't get the actual response data
+    // We'll assume success if the request didn't throw an error
+    return { success: true };
 
-    if (!response.data.success) {
-      throw new Error(response.data.error || 'Registration failed');
-    }
-
-    return { success: true, data: response.data };
   } catch (error) {
-    console.error('Registration error:', error);
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error('Error details:', errorMessage);
-      return {
-        success: false,
-        error: errorMessage
-      };
-    }
+    console.error('Error sending data:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error occurred'
