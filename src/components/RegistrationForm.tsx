@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { sendRegistrationToWebhook } from '../lib/webhook';
-import { Event, Registration } from '../types';
+import { Event } from '../types';
+import { Button } from './Button';
 import toast from 'react-hot-toast';
 
 interface RegistrationFormProps {
@@ -15,63 +16,37 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
     email: '',
     phone: '',
     participants: 1,
-    eventDate: event.date || '',
     specialRequests: '',
-    paymentStatus: 'pending' as Registration['paymentStatus']
   });
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validateForm = () => {
-    if (!formData.phone.match(/^[0-9]{10}$/)) {
-      throw new Error('מספר טלפון לא תקין');
-    }
-    if (formData.participants < 1 || (event.maxParticipants && formData.participants > event.maxParticipants)) {
-      throw new Error(`מספר משתתפים חייב להיות בין 1 ל-${event.maxParticipants || 10}`);
-    }
-    if (!formData.eventDate) {
-      throw new Error('אנא בחר תאריך');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      validateForm();
-
-      const registrationData: Registration = {
+      const registrationData = {
         eventId: event.id,
         eventTitle: event.title,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         participants: formData.participants,
-        eventDate: formData.eventDate,
         specialRequests: formData.specialRequests,
-        paymentStatus: formData.paymentStatus,
         registrationDate: new Date().toISOString(),
       };
 
-      const success = await sendRegistrationToWebhook(registrationData);
+      await sendRegistrationToWebhook(registrationData);
+      toast.success('ההרשמה בוצעה בהצלחה!');
+      onSuccess?.();
 
-      if (success) {
-        toast.success('ההרשמה בוצעה בהצלחה!');
-        if (event.paymentLink) {
-          window.location.href = event.paymentLink;
-        } else {
-          onSuccess?.();
-        }
-      } else {
-        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
-      }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('אירעה שגיאה בהרשמה. אנא נסו שנית.');
-      }
+      console.error('Registration error:', error);
+      toast.error(
+        error instanceof Error 
+          ? `שגיאה בהרשמה: ${error.message}` 
+          : 'אירעה שגיאה בהרשמה. אנא נסו שנית.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -87,6 +62,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+          dir="rtl"
         />
       </div>
 
@@ -98,6 +74,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.email}
           onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+          dir="ltr"
         />
       </div>
 
@@ -109,6 +86,7 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           value={formData.phone}
           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
+          dir="ltr"
         />
       </div>
 
@@ -125,19 +103,6 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
         />
       </div>
 
-      {!event.date && (
-        <div>
-          <label className="block text-sm font-medium text-earth-800 mb-2">תאריך</label>
-          <input
-            type="date"
-            required
-            value={formData.eventDate}
-            onChange={(e) => setFormData(prev => ({ ...prev, eventDate: e.target.value }))}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
-          />
-        </div>
-      )}
-
       <div>
         <label className="block text-sm font-medium text-earth-800 mb-2">בקשות מיוחדות</label>
         <textarea
@@ -145,51 +110,32 @@ export function RegistrationForm({ event, onSuccess, onCancel }: RegistrationFor
           onChange={(e) => setFormData(prev => ({ ...prev, specialRequests: e.target.value }))}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-sage-500"
           rows={3}
+          dir="rtl"
         />
       </div>
 
       <div className="flex gap-4">
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          fullWidth
           disabled={isSubmitting}
-          className="flex-1 bg-sage-600 text-white py-3 rounded-lg hover:bg-sage-700 transition-colors disabled:opacity-50"
+          loading={isSubmitting}
         >
-          {isSubmitting ? 'שולח...' : event.paymentLink ? 'המשך לתשלום' : 'הרשמה לאירוע'}
-        </button>
+          {isSubmitting ? 'שולח...' : 'המשך להרשמה'}
+        </Button>
         {onCancel && (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            fullWidth
             onClick={onCancel}
-            className="flex-1 bg-earth-100 text-earth-800 py-3 rounded-lg hover:bg-earth-200 transition-colors"
+            disabled={isSubmitting}
           >
             ביטול
-          </button>
+          </Button>
         )}
       </div>
-
-      {event.price && (
-        <p className="text-sm text-earth-600 text-center mt-2">
-          {event.earlyBirdPrice ? (
-            <>
-              מחיר מוקדם: ₪{event.earlyBirdPrice} | מחיר רגיל: ₪{event.price}
-            </>
-          ) : (
-            <>מחיר: ₪{event.price}</>
-          )}
-        </p>
-      )}
-
-      {event.spotsLeft !== undefined && event.spotsLeft < 10 && (
-        <p className="text-sm text-red-600 text-center mt-2">
-          נותרו {event.spotsLeft} מקומות בלבד!
-        </p>
-      )}
-
-      {event.currentViewers && event.currentViewers > 5 && (
-        <p className="text-sm text-earth-600 text-center mt-2">
-          {event.currentViewers} אנשים צופים באירוע כרגע
-        </p>
-      )}
     </form>
   );
 }

@@ -1,21 +1,17 @@
-const WEBHOOK_URL = 'https://hook.eu2.make.com/qo7iiei70igppwvghoh1lysgzqoq22hj';
-
 interface RegistrationData {
   eventId: string;
   eventTitle: string;
   name: string;
   email: string;
   phone: string;
-  participants: number;
-  eventDate: string;
-  specialRequests: string;
-  paymentStatus: string;
   registrationDate: string;
+  participants?: number;
+  specialRequests?: string;
 }
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
   try {
-    const response = await fetch(WEBHOOK_URL, {
+    const response = await fetch('/.netlify/functions/registration', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,13 +20,15 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
     });
 
     if (!response.ok) {
-      console.error('Webhook error:', await response.text());
-      throw new Error('Failed to send registration data');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to send registration data');
     }
 
-    return true;
+    const result = await response.json();
+    return result;
+
   } catch (error) {
     console.error('Error sending registration data:', error);
-    return false;
+    throw error;
   }
 }
