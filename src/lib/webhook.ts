@@ -10,6 +10,8 @@ interface RegistrationData {
 }
 
 export async function sendRegistrationToWebhook(data: RegistrationData) {
+  console.log('Sending registration data:', JSON.stringify(data, null, 2));
+
   try {
     const response = await fetch('/.netlify/functions/registration', {
       method: 'POST',
@@ -19,13 +21,15 @@ export async function sendRegistrationToWebhook(data: RegistrationData) {
       body: JSON.stringify(data),
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to send registration data');
+      console.error('Registration failed:', responseData);
+      throw new Error(responseData.error || 'Failed to send registration data');
     }
 
-    const result = await response.json();
-    return result;
+    console.log('Registration successful:', responseData);
+    return responseData;
 
   } catch (error) {
     console.error('Error sending registration data:', error);
