@@ -6,6 +6,7 @@ export interface Event {
   price: number;
   description: string;
   capacity?: number;
+  paymentLink?: string;
 }
 
 export interface User {
