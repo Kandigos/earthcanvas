@@ -7,10 +7,26 @@ export interface Event {
   description: string;
   totalSpots: number;
   spotsLeft: number;
+  maxParticipants: number;
+  currentParticipants: number;
   paymentLink?: string;
   earlyBirdPrice?: number;
   earlyBirdEnds?: string;
   isEarlyBird?: boolean;
+  currentViewers?: number;
+}
+
+export interface RegistrationData {
+  eventId: string;
+  eventTitle: string;
+  name: string;
+  email: string;
+  phone: string;
+  registrationDate: string;
+  eventDate: string;
+  eventTime: string;
+  eventPrice: number;
+  notes?: string;
 }
 
 export interface User {
@@ -23,17 +39,23 @@ export interface Testimonial {
   name: string;
   rating: number;
   text: string;
+  eventTitle: string;
+  date: string;
 }
 
-export interface RegistrationData {
-  name: string;
-  email: string;
-  phone: string;
-  notes?: string;
+export interface RegistrationFormProps {
+  event: Event;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  isEarlyBird?: boolean;
+}
+
+export interface EventSocialProofProps {
   eventId: string;
-  eventTitle: string;
-  registrationDate: string;
-  eventDate: string;
-  eventTime: string;
-  eventPrice: number;
+  testimonials: Testimonial[];
+  currentViewers?: number;
+  recentRegistrations?: {
+    name: string;
+    timeAgo: string;
+  }[];
 }
