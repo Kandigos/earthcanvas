@@ -8,6 +8,7 @@ interface PreviewModalProps {
 }
 
 export function PreviewModal({ event, onClose }: PreviewModalProps) {
+  // Create a complete Event object from partial data
   const previewEvent: Event = {
     id: 'preview',
     title: event.title || 'ללא כותרת',
@@ -15,11 +16,14 @@ export function PreviewModal({ event, onClose }: PreviewModalProps) {
     time: event.time || 'לא נקבעה שעה',
     price: event.price || 0,
     description: event.description || 'אין תיאור',
+    maxParticipants: event.maxParticipants || 50,
+    currentParticipants: event.currentParticipants || 0,
     totalSpots: event.totalSpots || 50,
     spotsLeft: event.spotsLeft || 50,
+    paymentLink: event.paymentLink,
     earlyBirdPrice: event.earlyBirdPrice,
     earlyBirdEnds: event.earlyBirdEnds,
-    paymentLink: event.paymentLink
+    currentViewers: event.currentViewers || 0
   };
 
   return (
@@ -35,9 +39,7 @@ export function PreviewModal({ event, onClose }: PreviewModalProps) {
         <h2 className="text-2xl font-bold mb-6 text-nature-charcoal">תצוגה מקדימה</h2>
         
         <div className="max-h-[70vh] overflow-y-auto">
-          <EventCard 
-            event={previewEvent} 
-          />
+          <EventCard event={previewEvent} />
         </div>
       </div>
     </div>
