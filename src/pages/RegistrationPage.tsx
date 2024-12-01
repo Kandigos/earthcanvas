@@ -6,7 +6,18 @@ import { useEvents } from '../hooks/useEvents';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, PiggyBank, ArrowRight } from 'lucide-react';
+import { Event } from '../types';
 import toast from 'react-hot-toast';
+
+const calculateEarlyBird = (event: Event) => {
+  if (!event.earlyBirdPrice || !event.earlyBirdEnds) {
+    return { isEarlyBird: false };
+  }
+
+  const now = new Date();
+  const endDate = new Date(event.earlyBirdEnds);
+  return { isEarlyBird: now < endDate };
+};
 
 export function RegistrationPage() {
   const { eventId } = useParams();
@@ -51,6 +62,8 @@ export function RegistrationPage() {
       </div>
     );
   }
+
+  const { isEarlyBird } = calculateEarlyBird(event);
 
   return (
     <div className="min-h-screen bg-nature-gradient-soft py-16">
@@ -99,7 +112,16 @@ export function RegistrationPage() {
                 <PiggyBank className="w-5 h-5 text-sage-600 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-earth-500">מחיר</p>
-                  <p className="text-earth-800 font-semibold">₪{event.price}</p>
+                  <div>
+                    {isEarlyBird ? (
+                      <>
+                        <p className="text-earth-800 font-semibold">₪{event.earlyBirdPrice}</p>
+                        <p className="text-sm text-rose-600 line-through">₪{event.price}</p>
+                      </>
+                    ) : (
+                      <p className="text-earth-800 font-semibold">₪{event.price}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,6 +132,7 @@ export function RegistrationPage() {
             <RegistrationForm 
               event={event}
               onCancel={() => navigate('/events')}
+              isEarlyBird={isEarlyBird}
             />
           </div>
         </motion.div>
