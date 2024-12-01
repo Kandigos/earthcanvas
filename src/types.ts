@@ -1,53 +1,39 @@
 export interface Event {
   id: string;
   title: string;
-  description?: string;
-  date?: string;
-  time?: string;
-  maxParticipants?: number;
-  price?: number;
+  date: string;
+  time: string;
+  price: number;
+  description: string;
+  totalSpots: number;
+  spotsLeft: number;
+  paymentLink?: string;
   earlyBirdPrice?: number;
   earlyBirdEnds?: string;
-  totalSpots?: number;
-  spotsLeft?: number;
-  currentViewers?: number;
-  location?: string;
-  image?: string;
-  paymentLink?: string;
-  testimonials?: Testimonial[];
+  isEarlyBird?: boolean;
 }
 
-export interface Registration {
-  eventId: string;
-  eventTitle: string;
-  name: string;
-  email: string;
-  phone: string;
-  participants: number;
-  eventDate: string;
-  specialRequests: string;
-  paymentStatus: 'pending' | 'completed' | 'failed';
-  registrationDate: string;
-  isEarlyBird?: boolean;
+export interface User {
+  username: string;
+  password: string;
 }
 
 export interface Testimonial {
   id: string;
   name: string;
-  text: string;
-  image?: string;
-  role?: string;
-  date?: string;
   rating: number;
+  text: string;
 }
 
-export interface EventCardProps {
-  event: Event;
-  testimonials?: Testimonial[];
-}
-
-export interface RegistrationModalProps {
-  event: Event;
-  isEarlyBird: boolean;
-  onClose: () => void;
+export interface RegistrationData {
+  name: string;
+  email: string;
+  phone: string;
+  notes?: string;
+  eventId: string;
+  eventTitle: string;
+  registrationDate: string;
+  eventDate: string;
+  eventTime: string;
+  eventPrice: number;
 }
