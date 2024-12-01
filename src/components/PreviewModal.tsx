@@ -1,14 +1,27 @@
 import { X } from 'lucide-react';
-import { Event, Testimonial } from '../types';
+import { Event } from '../types';
 import { EventCard } from './EventCard';
 
 interface PreviewModalProps {
   event: Partial<Event>;
-  testimonials?: Testimonial[];
   onClose: () => void;
 }
 
-export function PreviewModal({ event, testimonials, onClose }: PreviewModalProps) {
+export function PreviewModal({ event, onClose }: PreviewModalProps) {
+  const previewEvent: Event = {
+    id: 'preview',
+    title: event.title || 'ללא כותרת',
+    date: event.date || 'לא נקבע תאריך',
+    time: event.time || 'לא נקבעה שעה',
+    price: event.price || 0,
+    description: event.description || 'אין תיאור',
+    totalSpots: event.totalSpots || 50,
+    spotsLeft: event.spotsLeft || 50,
+    earlyBirdPrice: event.earlyBirdPrice,
+    earlyBirdEnds: event.earlyBirdEnds,
+    paymentLink: event.paymentLink
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-nature-cream rounded-lg p-6 max-w-md w-full relative">
@@ -23,16 +36,7 @@ export function PreviewModal({ event, testimonials, onClose }: PreviewModalProps
         
         <div className="max-h-[70vh] overflow-y-auto">
           <EventCard 
-            event={{
-              id: 'preview',
-              title: event.title || 'ללא כותרת',
-              date: event.date || 'לא נקבע תאריך',
-              time: event.time || 'לא נקבעה שעה',
-              price: event.price || 0,
-              description: event.description || 'אין תיאור',
-              paymentLink: event.paymentLink,
-            }}
-            testimonials={testimonials}
+            event={previewEvent} 
           />
         </div>
       </div>
